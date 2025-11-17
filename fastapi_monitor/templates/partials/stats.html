@@ -1,0 +1,37 @@
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Total Requests -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Total Requests</h3>
+        <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats.total_requests }}</div>
+    </div>
+    
+    <!-- Avg Response Time -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Avg Response Time</h3>
+        <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats.avg_response_time }}<span class="text-lg text-gray-500">ms</span></div>
+    </div>
+    
+    <!-- Error Count -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Error Count</h3>
+        <div class="text-3xl font-bold text-red-500">{{ stats.error_count }}</div>
+    </div>
+    
+    <!-- Status Codes -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Status Codes</h3>
+        <div class="space-y-2">
+            {% for code, count in stats.status_codes.items() %}
+                <div class="flex justify-between items-center">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        {% if code.startswith('2') %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                        {% elif code.startswith('3') %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                        {% else %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}">
+                        {{ code }}
+                    </span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ count }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

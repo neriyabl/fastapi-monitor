@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI Monitor Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/alpinejs@3.13.1/dist/cdn.min.js" defer></script>
+</head>
+<body x-data="analyticsApp()" 
+      :class="{ 'dark': theme === 'dark' }" 
+      class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8 pb-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center gap-4">
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Analytics Dashboard</h1>
+                <a href="./" class="text-blue-500 hover:text-blue-600 text-sm">← Back to Monitor</a>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <!-- Theme Toggle -->
+                <button @click="toggleTheme()" 
+                        class="p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <svg x-show="theme === 'light'" class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0020.354 15.354z"></path>
+                    </svg>
+                    <svg x-show="theme === 'dark'" class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                </button>
+                
+                <!-- Refresh Button -->
+                <button @click="loadAnalytics()" 
+                        class="p-2 rounded-lg bg-primary-500 hover:bg-primary-600 text-white transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Requests over Time -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Requests Over Time</h2>
+                    <select x-model="resolution" @change="loadAnalytics()" 
+                            class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-3 py-1 text-sm text-gray-900 dark:text-gray-100">
+                        <option value="30s">30 seconds</option>
+                        <option value="1m">1 minute</option>
+                        <option value="5m">5 minutes</option>
+                        <option value="15m">15 minutes</option>
+                        <option value="30m">30 minutes</option>
+                        <option value="1h">1 hour</option>
+                        <option value="1d">1 day</option>
+                    </select>
+                </div>
+                <canvas id="requestsOverTimeChart" width="400" height="200"></canvas>
+            </div>
+
+            <!-- Response Time Distribution -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Response Time Distribution</h2>
+                <canvas id="responseTimeChart" width="400" height="200"></canvas>
+            </div>
+
+            <!-- Top Endpoints -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Top Endpoints</h2>
+                <canvas id="topEndpointsChart" width="400" height="200"></canvas>
+            </div>
+
+            <!-- Status Code Trends -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Status Code Trends (Last 7 days)</h2>
+                <canvas id="statusTrendsChart" width="400" height="200"></canvas>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function analyticsApp() {
+            return {
+                theme: localStorage.getItem('theme') || 'light',
+                resolution: '30s',
+                charts: {},
+                
+                init() {
+                    this.applyTheme();
+                    this.loadAnalytics();
+                },
+                
+                applyTheme() {
+                    if (this.theme === 'dark') {
+                        document.documentElement.classList.add('dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                    }
+                },
+                
+                toggleTheme() {
+                    this.theme = this.theme === 'light' ? 'dark' : 'light';
+                    localStorage.setItem('theme', this.theme);
+                    this.applyTheme();
+                    // Recreate charts with new theme
+                    setTimeout(() => this.loadAnalytics(), 100);
+                },
+                
+                async loadAnalytics() {
+                    try {
+                        const response = await fetch(`api/analytics?resolution=${this.resolution}`);
+                        const data = await response.json();
+                        this.createCharts(data);
+                    } catch (error) {
+                        console.error('Error loading analytics:', error);
+                    }
+                },
+                
+                createCharts(data) {
+                    const isDark = this.theme === 'dark';
+                    const textColor = isDark ? '#f3f4f6' : '#374151';
+                    const gridColor = isDark ? '#374151' : '#e5e7eb';
+                    
+                    // Destroy existing charts
+                    Object.values(this.charts).forEach(chart => chart?.destroy());
+                    
+                    // Requests over Time
+                    this.charts.requestsOverTime = new Chart(document.getElementById('requestsOverTimeChart'), {
+                        type: 'line',
+                        data: {
+                            labels: data.requests_over_time.map(d => d.time),
+                            datasets: [{
+                                label: 'Requests',
+                                data: data.requests_over_time.map(d => d.count),
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { labels: { color: textColor } }
+                            },
+                            scales: {
+                                x: { 
+                                    ticks: { 
+                                        color: textColor,
+                                        maxTicksLimit: 15
+                                    }, 
+                                    grid: { color: gridColor } 
+                                },
+                                y: { 
+                                    ticks: { color: textColor }, 
+                                    grid: { color: gridColor } 
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Response Time Distribution
+                    this.charts.responseTime = new Chart(document.getElementById('responseTimeChart'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: data.response_time_distribution.map(d => d.range),
+                            datasets: [{
+                                data: data.response_time_distribution.map(d => d.count),
+                                backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { labels: { color: textColor } }
+                            }
+                        }
+                    });
+                    
+                    // Top Endpoints
+                    this.charts.topEndpoints = new Chart(document.getElementById('topEndpointsChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: data.top_endpoints.map(d => d.path),
+                            datasets: [{
+                                label: 'Request Count',
+                                data: data.top_endpoints.map(d => d.count),
+                                backgroundColor: '#3b82f6'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { labels: { color: textColor } }
+                            },
+                            scales: {
+                                x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                                y: { ticks: { color: textColor }, grid: { color: gridColor } }
+                            }
+                        }
+                    });
+                    
+                    // Status Code Trends (simplified)
+                    const statusData = {};
+                    data.status_trends.forEach(item => {
+                        if (!statusData[item.status_code]) {
+                            statusData[item.status_code] = [];
+                        }
+                        statusData[item.status_code].push(item.count);
+                    });
+                    
+                    this.charts.statusTrends = new Chart(document.getElementById('statusTrendsChart'), {
+                        type: 'line',
+                        data: {
+                            labels: [...new Set(data.status_trends.map(d => d.date))],
+                            datasets: Object.entries(statusData).map(([status, counts], index) => ({
+                                label: `${status}xx`,
+                                data: counts,
+                                borderColor: ['#10b981', '#f59e0b', '#ef4444'][index] || '#8b5cf6',
+                                tension: 0.4
+                            }))
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { labels: { color: textColor } }
+                            },
+                            scales: {
+                                x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                                y: { ticks: { color: textColor }, grid: { color: gridColor } }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
