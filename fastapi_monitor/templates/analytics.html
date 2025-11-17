@@ -7,34 +7,57 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/alpinejs@3.13.1/dist/cdn.min.js" defer></script>
+    <style>
+        :root {
+            --bg-primary: #f9fafb;
+            --bg-secondary: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --border-color: #374151;
+        }
+        
+        .theme-bg-primary { background-color: var(--bg-primary); }
+        .theme-bg-secondary { background-color: var(--bg-secondary); }
+        .theme-text-primary { color: var(--text-primary); }
+        .theme-text-secondary { color: var(--text-secondary); }
+        .theme-border { border-color: var(--border-color); }
+    </style>
 </head>
 <body x-data="analyticsApp()" 
-      :class="{ 'dark': theme === 'dark' }" 
-      class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+      class="theme-bg-primary transition-colors duration-200"
+      :data-theme="theme">
     
     <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- Header -->
-        <header class="flex justify-between items-center mb-8 pb-6 border-b border-gray-200 dark:border-gray-700">
+        <header class="flex justify-between items-center mb-8 pb-6 theme-border border-b">
             <div class="flex items-center gap-4">
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Analytics Dashboard</h1>
+                <h1 class="text-3xl font-bold theme-text-primary">Analytics Dashboard</h1>
                 <a href="./" class="text-blue-500 hover:text-blue-600 text-sm">← Back to Monitor</a>
             </div>
             
             <div class="flex items-center gap-4">
                 <!-- Theme Toggle -->
                 <button @click="toggleTheme()" 
-                        class="p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <svg x-show="theme === 'light'" class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="p-2 rounded-lg theme-bg-secondary theme-border border hover:opacity-80 transition-colors">
+                    <svg x-show="theme === 'light'" class="w-5 h-5 theme-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0020.354 15.354z"></path>
                     </svg>
-                    <svg x-show="theme === 'dark'" class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg x-show="theme === 'dark'" class="w-5 h-5 theme-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
                     </svg>
                 </button>
                 
                 <!-- Refresh Button -->
                 <button @click="loadAnalytics()" 
-                        class="p-2 rounded-lg bg-primary-500 hover:bg-primary-600 text-white transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl">
+                        class="p-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                     </svg>
@@ -44,11 +67,11 @@
 
         <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Requests over Time -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+            <div class="theme-bg-secondary rounded-xl shadow-lg theme-border border p-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Requests Over Time</h2>
+                    <h2 class="text-xl font-semibold theme-text-primary">Requests Over Time</h2>
                     <select x-model="resolution" @change="loadAnalytics()" 
-                            class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-3 py-1 text-sm text-gray-900 dark:text-gray-100">
+                            class="theme-bg-secondary theme-border border rounded px-3 py-1 text-sm theme-text-primary">
                         <option value="30s">30 seconds</option>
                         <option value="1m">1 minute</option>
                         <option value="5m">5 minutes</option>
@@ -62,20 +85,20 @@
             </div>
 
             <!-- Response Time Distribution -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Response Time Distribution</h2>
+            <div class="theme-bg-secondary rounded-xl shadow-lg theme-border border p-6">
+                <h2 class="text-xl font-semibold theme-text-primary mb-4">Response Time Distribution</h2>
                 <canvas id="responseTimeChart" width="400" height="200"></canvas>
             </div>
 
             <!-- Top Endpoints -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Top Endpoints</h2>
+            <div class="theme-bg-secondary rounded-xl shadow-lg theme-border border p-6">
+                <h2 class="text-xl font-semibold theme-text-primary mb-4">Top Endpoints</h2>
                 <canvas id="topEndpointsChart" width="400" height="200"></canvas>
             </div>
 
             <!-- Status Code Trends -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Status Code Trends (Last 7 days)</h2>
+            <div class="theme-bg-secondary rounded-xl shadow-lg theme-border border p-6">
+                <h2 class="text-xl font-semibold theme-text-primary mb-4">Status Code Trends (Last 7 days)</h2>
                 <canvas id="statusTrendsChart" width="400" height="200"></canvas>
             </div>
         </main>
@@ -104,8 +127,7 @@
                 toggleTheme() {
                     this.theme = this.theme === 'light' ? 'dark' : 'light';
                     localStorage.setItem('theme', this.theme);
-                    this.applyTheme();
-                    // Recreate charts with new theme
+                    // Recreate charts with new theme after a short delay
                     setTimeout(() => this.loadAnalytics(), 100);
                 },
                 
