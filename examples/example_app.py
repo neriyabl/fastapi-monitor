@@ -48,6 +48,7 @@ async def slow_endpoint():
 @app.get("/fatal")
 async def fatal_error():
     # This will cause a fatal error (unhandled exception)
+    raise ZeroDivisionError("Intentional error for testing")
     return {"message": "This won't be reached"}
 
 
