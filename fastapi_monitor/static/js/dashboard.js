@@ -54,6 +54,11 @@ class DashboardApp {
       new DashboardController({
         refreshInterval: 5000,
         autoRefresh: true,
+        apiEndpoints: {
+          stats: "./api/stats",
+          requests: "./api/requests",
+          analytics: "./api/analytics",
+        },
       }),
     );
 
