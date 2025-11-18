@@ -1,11 +1,14 @@
 """Example FastAPI app with monitoring."""
 
-from fastapi import FastAPI, HTTPException
-from fastapi_monitor import MonitorMiddleware, create_dashboard_app
-from pydantic import BaseModel
-import uvicorn
-import random
 import asyncio
+import random
+
+import uvicorn
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+from fastapi_monitor import MonitorMiddleware, create_dashboard_app
+
 
 # Pydantic models
 class User(BaseModel):
@@ -13,21 +16,27 @@ class User(BaseModel):
     email: str
     age: int
 
+
 class UserUpdate(BaseModel):
     name: str = None
     email: str = None
     age: int = None
 
+
 # Create main app
 app = FastAPI(title="Example API")
 
 # Add monitoring middleware
-app.add_middleware(MonitorMiddleware, db_path="example_monitor.db", exclude_paths=["/monitor"])
+app.add_middleware(
+    MonitorMiddleware, db_path="example_monitor.db", exclude_paths=["/monitor"]
+)
+
 
 # Example routes
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
 
 @app.get("/slow")
 async def slow_endpoint():
@@ -35,11 +44,12 @@ async def slow_endpoint():
     await asyncio.sleep(random.uniform(0.5, 2.0))
     return {"message": "This was slow"}
 
+
 @app.get("/fatal")
 async def fatal_error():
     # This will cause a fatal error (unhandled exception)
-    result = 1 / 0  # ZeroDivisionError
     return {"message": "This won't be reached"}
+
 
 @app.get("/error")
 async def error_endpoint():
@@ -47,11 +57,13 @@ async def error_endpoint():
         raise HTTPException(status_code=500, detail="Random error")
     return {"message": "Success"}
 
+
 @app.get("/users/{user_id}")
 async def get_user(user_id: int):
     if user_id > 100:
         raise HTTPException(status_code=404, detail="User not found")
     return {"user_id": user_id, "name": f"User {user_id}"}
+
 
 @app.post("/users")
 async def create_user(user: User):
@@ -59,11 +71,13 @@ async def create_user(user: User):
     await asyncio.sleep(0.1)
     return {"id": random.randint(1, 1000), **user.dict(), "created": True}
 
+
 @app.put("/users/{user_id}")
 async def update_user(user_id: int, user: User):
     if user_id > 100:
         raise HTTPException(status_code=404, detail="User not found")
     return {"user_id": user_id, **user.dict(), "updated": True}
+
 
 @app.patch("/users/{user_id}")
 async def partial_update_user(user_id: int, user: UserUpdate):
@@ -71,11 +85,13 @@ async def partial_update_user(user_id: int, user: UserUpdate):
         raise HTTPException(status_code=404, detail="User not found")
     return {"user_id": user_id, **user.dict(exclude_unset=True), "patched": True}
 
+
 @app.delete("/users/{user_id}")
 async def delete_user(user_id: int):
     if user_id > 100:
         raise HTTPException(status_code=404, detail="User not found")
     return {"user_id": user_id, "deleted": True}
+
 
 # Create dashboard app
 dashboard_app = create_dashboard_app("example_monitor.db")
