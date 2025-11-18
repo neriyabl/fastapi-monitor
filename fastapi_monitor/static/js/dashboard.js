@@ -49,15 +49,18 @@ class DashboardApp {
     );
 
     // Initialize Dashboard Controller
+    // Get the current path base (e.g., "/monitor" if mounted at /monitor)
+    const pathBase = window.location.pathname.replace(/\/$/, "") || "";
+
     this.components.set(
       "dashboard",
       new DashboardController({
         refreshInterval: 5000,
         autoRefresh: true,
         apiEndpoints: {
-          stats: "./api/stats",
-          requests: "./api/requests",
-          analytics: "./api/analytics",
+          stats: `${pathBase}/api/stats`,
+          requests: `${pathBase}/api/requests`,
+          analytics: `${pathBase}/api/analytics`,
         },
       }),
     );
