@@ -1,38 +1,52 @@
 {% for request in recent_requests %}
-<tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer" 
-    onclick="showRequestDetail({{ request.id }})">
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-        {{ request.formatted_time }}
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap">
-        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-            {% if request.method == 'GET' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
-            {% elif request.method == 'POST' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
-            {% elif request.method == 'PUT' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
-            {% elif request.method == 'DELETE' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
-            {% else %}bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200{% endif %}">
-            {{ request.method }}
-        </span>
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300 font-mono">
-        {{ request.path }}
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap">
-        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-            {% if request.status_code < 300 %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
-            {% elif request.status_code < 400 %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
-            {% else %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}">
-            {{ request.status_code }}
-        </span>
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-        {{ "%.1f"|format(request.response_time) }}ms
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-        {{ request.response_size }}B
-    </td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 font-mono">
-        {{ request.client_ip or '-' }}
-    </td>
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+  <td
+    class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-gray-100"
+  >
+    {{ request.formatted_time }}
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap">
+    <span
+      class="px-2 py-1 text-xs font-medium rounded-full {% if request.method == 'GET' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200{% endif %} {% if request.method == 'POST' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200{% endif %} {% if request.method == 'PUT' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200{% endif %} {% if request.method == 'DELETE' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}"
+    >
+      {{ request.method }}
+    </span>
+  </td>
+  <td
+    class="px-6 py-4 text-sm font-mono text-gray-900 dark:text-gray-100 max-w-xs truncate"
+  >
+    {{ request.path }}
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap">
+    <span
+      class="px-2 py-1 text-xs font-medium rounded-full {% if request.status_code < 300 %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200{% endif %} {% if request.status_code >= 300 and request.status_code < 400 %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200{% endif %} {% if request.status_code >= 400 and request.status_code < 500 %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200{% endif %} {% if request.status_code >= 500 %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}"
+    >
+      {{ request.status_code }}
+    </span>
+  </td>
+  <td
+    class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100"
+  >
+    {{ "%.1f"|format(request.response_time) }}ms
+  </td>
+  <td
+    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"
+  >
+    {{ request.response_size or 0 }}B
+  </td>
+  <td
+    class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500 dark:text-gray-400"
+  >
+    {{ request.client_ip }}
+  </td>
+</tr>
+{% else %}
+<tr>
+  <td
+    colspan="7"
+    class="px-6 py-8 text-center text-gray-500 dark:text-gray-400"
+  >
+    No requests yet
+  </td>
 </tr>
 {% endfor %}

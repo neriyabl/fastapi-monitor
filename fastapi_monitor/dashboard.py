@@ -57,12 +57,14 @@ def create_dashboard_app(
     async def dashboard(request: Request, user: str = Depends(auth_dependency)):
         """Main dashboard page."""
         stats = await db.get_stats()
+        recent_requests = await db.get_recent_requests(limit=20)
 
         return templates.TemplateResponse(
             "dashboard.html",
             {
                 "request": request,
                 "stats": stats,
+                "recent_requests": recent_requests,
                 "theme_mode": theme_mode,
                 "color_scheme": color_scheme,
             },
