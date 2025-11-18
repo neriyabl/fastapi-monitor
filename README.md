@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-A lightweight, production-ready monitoring middleware for FastAPI applications with real-time dashboard and comprehensive metrics collection.
+A lightweight monitoring middleware for FastAPI applications with real-time dashboard and comprehensive metrics collection.
 
 ## ✨ Features
 
