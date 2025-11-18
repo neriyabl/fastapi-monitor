@@ -59,7 +59,13 @@ def create_dashboard_app(
         stats = await db.get_stats()
 
         return templates.TemplateResponse(
-            "dashboard.html", {"request": request, "stats": stats}
+            "dashboard.html",
+            {
+                "request": request,
+                "stats": stats,
+                "theme_mode": theme_mode,
+                "color_scheme": color_scheme,
+            },
         )
 
     @app.get("/api/stats")
@@ -117,7 +123,14 @@ def create_dashboard_app(
     @app.get("/analytics", response_class=HTMLResponse)
     async def analytics(request: Request, user: str = Depends(auth_dependency)):
         """Analytics dashboard page."""
-        return templates.TemplateResponse("analytics.html", {"request": request})
+        return templates.TemplateResponse(
+            "analytics.html",
+            {
+                "request": request,
+                "theme_mode": theme_mode,
+                "color_scheme": color_scheme,
+            },
+        )
 
     @app.get("/api/analytics")
     async def get_analytics(

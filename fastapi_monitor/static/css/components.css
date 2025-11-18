@@ -257,6 +257,21 @@
   font-weight: var(--font-medium);
 }
 
+/* Auto-refresh Label */
+.auto-refresh-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.auto-refresh-text {
+  font-weight: var(--font-medium);
+}
+
 /* Loading Overlay */
 .loading-overlay {
   position: fixed;
