@@ -16,9 +16,20 @@ def create_dashboard_app(
     db_path: str = "monitor.db",
     username: Optional[str] = None,
     password: Optional[str] = None,
+    theme_mode: str = "light",
+    color_scheme: str = "default",
 ) -> FastAPI:
-    """Create dashboard FastAPI application with optional basic auth."""
+    """Create dashboard FastAPI application with optional basic auth and theme configuration."""
     app = FastAPI(title="FastAPI Monitor Dashboard")
+
+    # Validate theme options
+    valid_modes = ["light", "dark"]
+    valid_schemes = ["default", "ocean", "forest", "sunset", "purple"]
+
+    if theme_mode not in valid_modes:
+        theme_mode = "light"
+    if color_scheme not in valid_schemes:
+        color_scheme = "default"
 
     # Get the package directory
     package_dir = os.path.dirname(__file__)

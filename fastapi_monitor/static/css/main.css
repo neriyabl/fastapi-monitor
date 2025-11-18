@@ -1,0 +1,155 @@
+/* FastAPI Monitor - Main Stylesheet */
+/* Architecture: ITCSS (Inverted Triangle CSS) for optimal maintainability */
+
+/* 1. Settings - Design tokens and configuration */
+@import "tokens.css";
+@import "themes.css";
+
+/* 2. Base - Element defaults and resets */
+@import "base.css";
+
+/* 3. Components - Reusable UI components */
+@import "components.css";
+
+/* 4. Layout - Page-specific layouts */
+.dashboard-layout {
+  min-height: 100vh;
+  background-color: var(--color-background);
+}
+
+.dashboard-header {
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-lg) 0;
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  backdrop-filter: blur(8px);
+}
+
+.dashboard-header__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xl);
+}
+
+.dashboard-header__title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.dashboard-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.dashboard-main {
+  padding: var(--space-3xl) 0;
+}
+
+.dashboard-section {
+  margin-bottom: var(--space-4xl);
+}
+
+.dashboard-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-xl);
+}
+
+.dashboard-section__title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+/* 5. Utilities - Helper classes for fine-tuning */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.transition-all {
+  transition: all var(--transition-base);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Status-specific styles */
+.status-200 {
+  color: var(--color-success);
+}
+.status-300 {
+  color: var(--color-info);
+}
+.status-400 {
+  color: var(--color-warning);
+}
+.status-500 {
+  color: var(--color-error);
+}
+
+/* Method-specific styles */
+.method-get {
+  color: var(--color-success);
+}
+.method-post {
+  color: var(--color-info);
+}
+.method-put {
+  color: var(--color-warning);
+}
+.method-delete {
+  color: var(--color-error);
+}
+
+/* Performance optimizations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Print styles */
+@media print {
+  .dashboard-header__actions,
+  .btn,
+  .theme-selector {
+    display: none !important;
+  }
+
+  .card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
