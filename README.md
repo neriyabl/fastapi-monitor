@@ -68,26 +68,39 @@ app.add_middleware(
 )
 ```
 
+### Dashboard with Basic Authentication
+
+```python
+# Protected dashboard
+dashboard_app = create_dashboard_app(
+    db_path="monitor.db",
+    username="admin",
+    password="your-secure-password"
+)
+app.mount("/monitor", dashboard_app)
+```
+
 ### Custom Dashboard Mount
 
 ```python
+# Without authentication
 dashboard_app = create_dashboard_app("custom_monitor.db")
 app.mount("/admin/monitoring", dashboard_app)
 ```
 
 ## 📈 Metrics Collected
 
-| Metric | Description |
-|--------|-------------|
-| Request Time | Timestamp of each request |
-| Response Time | Processing time in milliseconds |
-| HTTP Method | GET, POST, PUT, DELETE, etc. |
-| Request Path | API endpoint accessed |
-| Status Code | HTTP response status |
-| Request Size | Size of request body in bytes |
-| Response Size | Size of response body in bytes |
-| Client IP | Source IP address |
-| User Agent | Client browser/application info |
+| Metric        | Description                      |
+| ------------- | -------------------------------- |
+| Request Time  | Timestamp of each request        |
+| Response Time | Processing time in milliseconds  |
+| HTTP Method   | GET, POST, PUT, DELETE, etc.     |
+| Request Path  | API endpoint accessed            |
+| Status Code   | HTTP response status             |
+| Request Size  | Size of request body in bytes    |
+| Response Size | Size of response body in bytes   |
+| Client IP     | Source IP address                |
+| User Agent    | Client browser/application info  |
 | Error Details | Stack traces for failed requests |
 
 ## 🛠️ Development
@@ -123,6 +136,7 @@ python example_app.py
 ```
 
 Then visit:
+
 - API: http://localhost:8000
 - Dashboard: http://localhost:8000/monitor
 

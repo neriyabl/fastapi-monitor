@@ -1,17 +1,23 @@
 """Dashboard FastAPI application."""
 
 import os
+from typing import Optional
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from .auth import create_auth_dependency, no_auth
 from .database import MonitorDatabase
 
 
-def create_dashboard_app(db_path: str = "monitor.db") -> FastAPI:
-    """Create dashboard FastAPI application."""
+def create_dashboard_app(
+    db_path: str = "monitor.db",
+    username: Optional[str] = None,
+    password: Optional[str] = None,
+) -> FastAPI:
+    """Create dashboard FastAPI application with optional basic auth."""
     app = FastAPI(title="FastAPI Monitor Dashboard")
 
     # Get the package directory
@@ -30,8 +36,14 @@ def create_dashboard_app(db_path: str = "monitor.db") -> FastAPI:
     # Database
     db = MonitorDatabase(db_path)
 
+    # Setup authentication
+    if username and password:
+        auth_dependency = create_auth_dependency(username, password)
+    else:
+        auth_dependency = no_auth
+
     @app.get("/", response_class=HTMLResponse)
-    async def dashboard(request: Request):
+    async def dashboard(request: Request, user: str = Depends(auth_dependency)):
         """Main dashboard page."""
         stats = await db.get_stats()
 
@@ -40,22 +52,24 @@ def create_dashboard_app(db_path: str = "monitor.db") -> FastAPI:
         )
 
     @app.get("/api/stats")
-    async def get_stats():
+    async def get_stats(user: str = Depends(auth_dependency)):
         """Get current statistics."""
         return await db.get_stats()
 
     @app.get("/api/requests")
-    async def get_requests(limit: int = 20, offset: int = 0):
+    async def get_requests(
+        limit: int = 20, offset: int = 0, user: str = Depends(auth_dependency)
+    ):
         """Get recent requests with pagination."""
         return await db.get_recent_requests(limit, offset)
 
     @app.get("/api/requests/{request_id}")
-    async def get_request_detail(request_id: int):
+    async def get_request_detail(request_id: int, user: str = Depends(auth_dependency)):
         """Get detailed request information."""
         return await db.get_request_by_id(request_id)
 
     @app.get("/stats-partial")
-    async def stats_partial(request: Request):
+    async def stats_partial(request: Request, user: str = Depends(auth_dependency)):
         """Partial template for stats (HTMX)."""
         stats = await db.get_stats()
         return templates.TemplateResponse(
@@ -63,7 +77,12 @@ def create_dashboard_app(db_path: str = "monitor.db") -> FastAPI:
         )
 
     @app.get("/requests-partial")
-    async def requests_partial(request: Request, page: int = 1, limit: int = 20):
+    async def requests_partial(
+        request: Request,
+        page: int = 1,
+        limit: int = 20,
+        user: str = Depends(auth_dependency),
+    ):
         """Partial template for requests table rows (HTMX) with pagination."""
         offset = (page - 1) * limit
         recent_requests = await db.get_recent_requests(limit, offset)
@@ -85,12 +104,14 @@ def create_dashboard_app(db_path: str = "monitor.db") -> FastAPI:
         return JSONResponse({"rows": rows_html, "pagination": pagination_html})
 
     @app.get("/analytics", response_class=HTMLResponse)
-    async def analytics(request: Request):
+    async def analytics(request: Request, user: str = Depends(auth_dependency)):
         """Analytics dashboard page."""
         return templates.TemplateResponse("analytics.html", {"request": request})
 
     @app.get("/api/analytics")
-    async def get_analytics(resolution: str = "30s"):
+    async def get_analytics(
+        resolution: str = "30s", user: str = Depends(auth_dependency)
+    ):
         """Get analytics data for charts."""
         return await db.get_analytics_data(resolution)
 
