@@ -1,153 +1,219 @@
 <!doctype html>
-<html lang="en">
+<html
+  lang="en"
+  data-theme="{{ theme_mode | default('light') }}"
+  data-scheme="{{ color_scheme | default('default') }}"
+>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FastAPI Monitor Dashboard</title>
-
-    <!-- Stylesheets -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <script
+      src="https://unpkg.com/alpinejs@3.13.1/dist/cdn.min.js"
+      defer
+    ></script>
     <link
       rel="stylesheet"
       href="{{ url_for('static', path='/css/main.css') }}"
     />
-
-    <!-- Preload critical resources -->
-    <link
-      rel="preload"
-      href="{{ url_for('static', path='/js/core/EventEmitter.js') }}"
-      as="script"
-    />
-    <link
-      rel="preload"
-      href="{{ url_for('static', path='/js/components/ThemeManager.js') }}"
-      as="script"
-    />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#eff6ff",
+                100: "#dbeafe",
+                500: "#3b82f6",
+                600: "#2563eb",
+                700: "#1d4ed8",
+              },
+            },
+          },
+        },
+      };
+    </script>
   </head>
   <body
-    data-theme="{{ theme_mode | default('light') }}"
-    data-scheme="{{ color_scheme | default('default') }}"
-    class="dashboard-layout"
+    x-data="dashboardApp()"
+    class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200"
+    style="
+      background-color: var(--color-background);
+      color: var(--color-text-primary);
+    "
   >
-    <!-- Dashboard Header -->
-    <header class="dashboard-header">
-      <div class="container dashboard-header__content">
-        <div class="dashboard-header__title">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"
-            />
-          </svg>
-          FastAPI Monitor Dashboard
+    <div class="max-w-7xl mx-auto px-4 py-8">
+      <!-- Header -->
+      <header
+        class="flex justify-between items-center mb-8 pb-6 border-b border-gray-200 dark:border-gray-700"
+        style="border-color: var(--color-border)"
+      >
+        <div class="flex items-center gap-4">
+          <h1
+            class="text-3xl font-bold text-gray-900 dark:text-white"
+            style="color: var(--color-text-primary)"
+          >
+            FastAPI Monitor Dashboard
+          </h1>
+          <a
+            href="analytics"
+            class="text-blue-500 hover:text-blue-600 text-sm"
+            style="color: var(--color-primary)"
+            >Analytics →</a
+          >
         </div>
 
-        <div class="dashboard-header__actions">
+        <div class="flex items-center gap-4">
+          <!-- Theme Toggle -->
+          <button
+            @click="toggleTheme()"
+            class="p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            style="
+              background-color: var(--color-surface);
+              border-color: var(--color-border);
+            "
+          >
+            <svg
+              x-show="theme === 'light'"
+              class="w-5 h-5 text-gray-600 dark:text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0020.354 15.354z"
+              ></path>
+            </svg>
+            <svg
+              x-show="theme === 'dark'"
+              class="w-5 h-5 text-gray-600 dark:text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0z"
+              ></path>
+            </svg>
+          </button>
+
           <!-- Auto-refresh Toggle -->
-          <label class="auto-refresh-label">
-            <input
-              type="checkbox"
-              id="auto-refresh-toggle"
-              class="sr-only"
-              checked
-            />
-            <div class="toggle-switch"></div>
-            <span class="auto-refresh-text">Auto-refresh</span>
+          <label
+            class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+            style="color: var(--color-text-secondary)"
+          >
+            <input type="checkbox" x-model="autoRefresh" class="rounded" />
+            Auto-refresh
           </label>
 
-          <!-- Theme Selector -->
-          <div class="theme-selector" id="theme-selector">
-            <button class="theme-selector__button" type="button">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M12 18c-.89 0-1.74-.19-2.5-.54C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.46C10.26 6.19 11.11 6 12 6a6 6 0 0 1 0 12z"
-                />
-              </svg>
-              Theme
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M7 10l5 5 5-5z" />
-              </svg>
-            </button>
-
-            <div class="theme-selector__dropdown" id="theme-dropdown">
-              <!-- Theme options will be populated by JavaScript -->
-            </div>
-          </div>
-
           <!-- Refresh Button -->
-          <button class="btn btn--primary" id="refresh-btn" type="button">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <button
+            @click="refreshData()"
+            class="p-2 rounded-lg bg-primary-500 hover:bg-primary-600 text-white transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl"
+            style="background-color: var(--color-primary)"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
-                d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"
-              />
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              ></path>
             </svg>
-            Refresh
           </button>
         </div>
+      </header>
+
+      <!-- Stats Cards -->
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        hx-get="stats-partial"
+        hx-trigger="load, every 5s[autoRefresh]"
+        hx-swap="innerHTML"
+      >
+        {% include 'partials/stats.html' %}
       </div>
-    </header>
 
-    <!-- Main Content -->
-    <main class="dashboard-main">
-      <div class="container">
-        <!-- Statistics Section -->
-        <section class="dashboard-section">
-          <div class="dashboard-section__header">
-            <h2 class="dashboard-section__title">Overview</h2>
+      <!-- Recent Requests -->
+      <div
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden"
+        style="
+          background-color: var(--color-surface);
+          border: 1px solid var(--color-border);
+        "
+      >
+        <div
+          class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center"
+          style="border-color: var(--color-border)"
+        >
+          <h2
+            class="text-xl font-semibold text-gray-900 dark:text-white"
+            style="color: var(--color-text-primary)"
+          >
+            Recent Requests
+          </h2>
+          <div class="flex items-center gap-4">
+            <span
+              class="text-sm text-gray-500 dark:text-gray-400"
+              style="color: var(--color-text-muted)"
+              >Last updated: <span x-text="lastUpdate"></span
+            ></span>
           </div>
+        </div>
 
-          <div class="stats-grid" id="stats-container">
-            <!-- Stats cards will be populated by JavaScript -->
+        <div class="overflow-x-auto">
+          <div
+            hx-get="requests-partial"
+            hx-trigger="load, every 5s[autoRefresh]"
+            hx-swap="innerHTML"
+          >
+            <!-- Requests will be loaded here -->
           </div>
-        </section>
-
-        <!-- Recent Requests Section -->
-        <section class="dashboard-section">
-          <div class="dashboard-section__header">
-            <h2 class="dashboard-section__title">Recent Requests</h2>
-            <a href="analytics" class="btn btn--ghost">
-              View Analytics
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"
-                />
-              </svg>
-            </a>
-          </div>
-
-          <div class="card">
-            <div class="card__body">
-              <div id="requests-table-container">
-                <!-- Requests table will be populated by JavaScript -->
-              </div>
-            </div>
-          </div>
-        </section>
+        </div>
       </div>
-    </main>
-
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="loading-overlay" style="display: none">
-      <div class="loading-spinner"></div>
     </div>
 
-    <!-- Scripts -->
-    <script src="{{ url_for('static', path='/js/core/EventEmitter.js') }}"></script>
-    <script src="{{ url_for('static', path='/js/components/ThemeManager.js') }}"></script>
-    <script src="{{ url_for('static', path='/js/components/DashboardController.js') }}"></script>
-    <script src="{{ url_for('static', path='/js/dashboard.js') }}"></script>
+    <script>
+      function dashboardApp() {
+        return {
+          theme: document.documentElement.getAttribute("data-theme") || "light",
+          autoRefresh: true,
+          lastUpdate: new Date().toLocaleTimeString(),
+
+          init() {
+            // Update last update time every second
+            setInterval(() => {
+              this.lastUpdate = new Date().toLocaleTimeString();
+            }, 1000);
+          },
+
+          toggleTheme() {
+            this.theme = this.theme === "light" ? "dark" : "light";
+            document.documentElement.setAttribute("data-theme", this.theme);
+            localStorage.setItem("theme", this.theme);
+          },
+
+          refreshData() {
+            // Trigger HTMX refresh
+            htmx.trigger(document.body, "refresh");
+            this.lastUpdate = new Date().toLocaleTimeString();
+          },
+        };
+      }
+    </script>
   </body>
 </html>

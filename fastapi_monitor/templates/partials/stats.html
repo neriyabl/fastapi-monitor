@@ -1,37 +1,178 @@
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    <!-- Total Requests -->
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Total Requests</h3>
-        <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats.total_requests }}</div>
+<!-- Total Requests -->
+<div
+  class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1"
+  style="
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+  "
+>
+  <div class="flex items-center justify-between">
+    <div>
+      <p
+        class="text-sm font-medium text-gray-600 dark:text-gray-400"
+        style="color: var(--color-text-secondary)"
+      >
+        Total Requests
+      </p>
+      <p
+        class="text-3xl font-bold text-gray-900 dark:text-white"
+        style="color: var(--color-text-primary)"
+      >
+        {{ stats.total_requests | default(0) }}
+      </p>
     </div>
-    
-    <!-- Avg Response Time -->
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Avg Response Time</h3>
-        <div class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats.avg_response_time }}<span class="text-lg text-gray-500">ms</span></div>
+    <div
+      class="p-3 rounded-full bg-blue-100 dark:bg-blue-900"
+      style="background-color: var(--color-primary-light)"
+    >
+      <svg
+        class="w-6 h-6 text-blue-600 dark:text-blue-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+        ></path>
+      </svg>
     </div>
-    
-    <!-- Error Count -->
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Error Count</h3>
-        <div class="text-3xl font-bold text-red-500">{{ stats.error_count }}</div>
+  </div>
+</div>
+
+<!-- Average Response Time -->
+<div
+  class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1"
+  style="
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+  "
+>
+  <div class="flex items-center justify-between">
+    <div>
+      <p
+        class="text-sm font-medium text-gray-600 dark:text-gray-400"
+        style="color: var(--color-text-secondary)"
+      >
+        Avg Response Time
+      </p>
+      <p
+        class="text-3xl font-bold text-gray-900 dark:text-white"
+        style="color: var(--color-text-primary)"
+      >
+        {{ stats.avg_response_time | default(0) }}ms
+      </p>
     </div>
-    
-    <!-- Status Codes -->
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Status Codes</h3>
-        <div class="space-y-2">
-            {% for code, count in stats.status_codes.items() %}
-                <div class="flex justify-between items-center">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                        {% if code.startswith('2') %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
-                        {% elif code.startswith('3') %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
-                        {% else %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}">
-                        {{ code }}
-                    </span>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ count }}</span>
-                </div>
-            {% endfor %}
-        </div>
+    <div
+      class="p-3 rounded-full bg-green-100 dark:bg-green-900"
+      style="background-color: var(--color-success); opacity: 0.2"
+    >
+      <svg
+        class="w-6 h-6 text-green-600 dark:text-green-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M13 10V3L4 14h7v7l9-11h-7z"
+        ></path>
+      </svg>
     </div>
+  </div>
+</div>
+
+<!-- Error Count -->
+<div
+  class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1"
+  style="
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+  "
+>
+  <div class="flex items-center justify-between">
+    <div>
+      <p
+        class="text-sm font-medium text-gray-600 dark:text-gray-400"
+        style="color: var(--color-text-secondary)"
+      >
+        Errors
+      </p>
+      <p
+        class="text-3xl font-bold text-gray-900 dark:text-white"
+        style="color: var(--color-text-primary)"
+      >
+        {{ stats.error_count | default(0) }}
+      </p>
+    </div>
+    <div
+      class="p-3 rounded-full bg-red-100 dark:bg-red-900"
+      style="background-color: var(--color-error); opacity: 0.2"
+    >
+      <svg
+        class="w-6 h-6 text-red-600 dark:text-red-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+        ></path>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- Status Codes -->
+<div
+  class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1"
+  style="
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+  "
+>
+  <div class="flex items-center justify-between">
+    <div>
+      <p
+        class="text-sm font-medium text-gray-600 dark:text-gray-400"
+        style="color: var(--color-text-secondary)"
+      >
+        Status Codes
+      </p>
+      <div class="flex gap-2 mt-2">
+        {% for code, count in stats.status_codes.items() %}
+        <span
+          class="px-2 py-1 text-xs rounded-full {% if code.startswith('2') %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200{% endif %} {% if code.startswith('3') %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200{% endif %} {% if code.startswith('4') %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200{% endif %} {% if code.startswith('5') %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}"
+        >
+          {{ code }}: {{ count }}
+        </span>
+        {% endfor %}
+      </div>
+    </div>
+    <div
+      class="p-3 rounded-full bg-purple-100 dark:bg-purple-900"
+      style="background-color: var(--color-info); opacity: 0.2"
+    >
+      <svg
+        class="w-6 h-6 text-purple-600 dark:text-purple-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+        ></path>
+      </svg>
+    </div>
+  </div>
 </div>
