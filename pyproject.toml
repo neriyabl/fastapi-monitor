@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fastapi-monitor"
-version = "0.1.0"
+version = "0.1.1"
 description = "A lightweight monitoring middleware for FastAPI applications with real-time dashboard"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -41,9 +41,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/fastapi-monitor"
-Repository = "https://github.com/yourusername/fastapi-monitor"
-Issues = "https://github.com/yourusername/fastapi-monitor/issues"
+Homepage = "https://github.com/neriyabl/fastapi-monitor"
+Repository = "https://github.com/neriyabl/fastapi-monitor"
+Issues = "https://github.com/neriyabl/fastapi-monitor/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
